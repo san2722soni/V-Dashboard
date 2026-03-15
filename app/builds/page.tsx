@@ -1,0 +1,11 @@
+import { BuildPageClient } from "./components/client"
+
+export default function BuildsPage() {
+  return (
+    <div className="flex-col">
+      <div className="flex-1 space-y-4 p-8 pt-6">
+        <BuildPageClient />
+      </div>
+    </div>
+  )
+}

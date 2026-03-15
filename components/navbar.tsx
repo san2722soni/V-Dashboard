@@ -1,0 +1,340 @@
+"use client";
+
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { User, Menu, X, LogOut } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { useEffect, useState } from "react";
+import { authService } from "@/lib/auth";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { User as UserType } from "@/lib/Types";
+import { ThemeToggle } from "@/components/theme-toggle";
+const Navbar = () => {
+  const pathname = usePathname();
+  const router = useRouter();
+
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [currentUser, setCurrentUser] = useState<UserType | null>(null);
+  const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false);
+
+  // Check authentication status on mount and pathname changes
+  useEffect(() => {
+    const checkAuthStatus = () => {
+      const authStatus = authService.isAuthenticated();
+      const user = authService.getCurrentUser();
+
+      setIsAuthenticated(authStatus);
+      setCurrentUser(user);
+    };
+
+    // Check immediately
+    checkAuthStatus();
+
+    const handlePathnameChange = () => {
+      // Small delay to ensure localStorage is updated after redirect
+      setTimeout(checkAuthStatus, 100);
+    };
+
+    handlePathnameChange();
+  }, [pathname]); // Re-run when pathname changes
+
+  // Alternative: Listen for storage changes
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const authStatus = authService.isAuthenticated();
+      const user = authService.getCurrentUser();
+
+      setIsAuthenticated(authStatus);
+      setCurrentUser(user);
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+
+    // Custom event for same-tab updates (you can dispatch this after login/logout)
+    window.addEventListener("authStateChanged", handleStorageChange);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener("authStateChanged", handleStorageChange);
+    };
+  }, []);
+
+  const isAdmin = currentUser?.role === "admin";
+
+  /**
+   * Handle user logout
+   */
+  const handleLogout = () => {
+    authService.logout();
+    setIsProfileDialogOpen(false);
+    router.push("/sign-in");
+    router.refresh();
+  };
+
+  const routes = [
+    {
+      href: `/dashboard`,
+      label: `Dashboard`,
+      active: pathname === `/dashboard`,
+    },
+    {
+      href: `/characters`,
+      label: `Characters`,
+      active: pathname === `/characters`,
+    },
+    {
+      href: `/buildings`,
+      label: `Buildings`,
+      active: pathname === `/buildings`,
+    },
+    {
+      href: `/inventory`,
+      label: `Inventory`,
+      active: pathname === `/inventory`,
+    },
+    {
+      href: `/global-config`,
+      label: `Global Config`,
+      active: pathname === `/global-config`,
+    },
+    isAdmin && {
+      href: `/developers`,
+      label: "Developers",
+      active: pathname === "/developers",
+    },
+    isAdmin && {
+      href: `/whitelist`,
+      label: "Whitelist",
+      active: pathname === "/whitelist",
+    },
+    {
+      href: `/feature-flags`,
+      label: "Feature Flags",
+      active: pathname === "/feature-flags",
+    },
+    {
+      href: `/builds`,
+      label: "Builds",
+      active: pathname === "/builds",
+    },
+    {
+      href: `/clientBuilds`,
+      label: "Client Builds",
+      active: pathname === "/clientBuilds",
+    },
+    {
+      href: `/system-design`,
+      label: "Architecture",
+      active: pathname === "/system-design",
+    },
+    {
+      href: `/excalidraw`,
+      label: "Excalidraw",
+      active: pathname === "/excalidraw" || pathname.startsWith("/excalidraw/"),
+    },
+  ];
+
+  return (
+    <>
+      {isAuthenticated && (
+        <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
+          <div className="flex h-16 items-center px-4 w-[90%] mx-auto">
+            {/* Logo/Brand */}
+            <div className="flex items-center space-x-4">
+              <Link href="/" className="font-bold text-xl">
+                Home
+              </Link>
+            </div>
+
+            {/* Desktop Navigation */}
+            <nav className="hidden md:flex items-center space-x-6 mx-6 overflow-x-auto scrollbar-hide whitespace-nowrap">
+              {routes
+                .filter(
+                  (r): r is { href: string; label: string; active: boolean } =>
+                    Boolean(r),
+                )
+                .map((route) => (
+                  <Link
+                    key={route.href}
+                    href={route.href}
+                    className={cn(
+                      "text-sm font-medium transition-colors hover:text-primary px-3 py-2 rounded-md",
+                      route.active
+                        ? "text-foreground bg-muted"
+                        : "text-muted-foreground hover:text-foreground",
+                    )}
+                  >
+                    {route.label}
+                  </Link>
+                ))}
+            </nav>
+
+            {/* Right side items */}
+            <div className="ml-auto flex items-center space-x-4">
+              {/* Theme Toggle */}
+              <ThemeToggle />
+
+              {/* Profile Dialog Trigger */}
+              <Dialog
+                open={isProfileDialogOpen}
+                onOpenChange={setIsProfileDialogOpen}
+              >
+                <DialogTrigger asChild>
+                  <div className="flex items-center space-x-2 cursor-pointer hover:bg-muted p-2 rounded-md transition-colors">
+                    <User className="w-5 h-5" />
+                  </div>
+                </DialogTrigger>
+                <DialogContent className="max-w-lg overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle>Profile</DialogTitle>
+                    <DialogDescription>
+                      {currentUser?.email} •{" "}
+                      {currentUser?.role &&
+                        currentUser.role.charAt(0).toUpperCase() +
+                          currentUser.role.slice(1)}
+                    </DialogDescription>
+                  </DialogHeader>
+
+                  <div className="space-y-6">
+                    {/* Role Badge */}
+                    <div className="flex items-center gap-2">
+                      <Badge
+                        className={`${
+                          currentUser?.role === "admin"
+                            ? "bg-red-500"
+                            : "bg-blue-500"
+                        } text-white`}
+                      >
+                        {currentUser?.role?.toUpperCase()}
+                      </Badge>
+                      {currentUser?.profileComplete && (
+                        <Badge variant="secondary">Profile Complete</Badge>
+                      )}
+                    </div>
+
+                    {/* User Profile Information */}
+                    {currentUser?.profile && (
+                      <Card>
+                        <CardHeader>
+                          <CardTitle>Profile Information</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {currentUser.profile.name && (
+                              <div>
+                                <Label className="text-sm font-medium">
+                                  Name
+                                </Label>
+                                <p className="text-sm text-muted-foreground">
+                                  {currentUser.profile.name}
+                                </p>
+                              </div>
+                            )}
+                            {currentUser.profile.role && (
+                              <div>
+                                <Label className="text-sm font-medium">
+                                  Role
+                                </Label>
+                                <p className="text-sm text-muted-foreground">
+                                  {currentUser.profile.role}
+                                </p>
+                              </div>
+                            )}
+                            {currentUser.profile.permissions && (
+                              <div>
+                                <Label className="text-sm font-medium">
+                                  Permissions
+                                </Label>
+                                <p className="text-sm text-muted-foreground">
+                                  {currentUser.profile.permissions}
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    )}
+
+                    {/* Logout Button */}
+                    <div className="pt-4 border-t">
+                      <Button
+                        onClick={handleLogout}
+                        variant="destructive"
+                        className="w-full"
+                      >
+                        <LogOut className="w-4 h-4 mr-2" />
+                        Logout
+                      </Button>
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
+
+              {/* Mobile menu button */}
+              <button
+                className="md:hidden p-2 hover:bg-muted rounded-md transition-colors"
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              >
+                {isMobileMenuOpen ? (
+                  <X className="w-5 h-5" />
+                ) : (
+                  <Menu className="w-5 h-5" />
+                )}
+              </button>
+            </div>
+          </div>
+
+          {/* Mobile Navigation */}
+          {isMobileMenuOpen && (
+            <div className="md:hidden border-t bg-background/95 backdrop-blur">
+              <nav className="flex flex-col space-y-1 px-4 py-2">
+                {routes
+                  .filter(
+                    (
+                      r,
+                    ): r is { href: string; label: string; active: boolean } =>
+                      Boolean(r),
+                  )
+                  .map((route) => (
+                    <Link
+                      key={route.href}
+                      href={route.href}
+                      className={cn(
+                        "text-sm font-medium transition-colors hover:text-primary px-3 py-3 rounded-md",
+                        route.active
+                          ? "text-foreground bg-muted"
+                          : "text-muted-foreground hover:text-foreground hover:bg-muted/50",
+                      )}
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      {route.label}
+                    </Link>
+                  ))}
+              </nav>
+            </div>
+          )}
+        </div>
+      )}
+    </>
+  );
+};
+
+export default Navbar;
