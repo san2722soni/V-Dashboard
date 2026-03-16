@@ -67,7 +67,7 @@ export default function DashboardPage() {
               {user.email} • {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
             </p>
             <p className="text-muted-foreground">
-                devops-watcher-dashboard 
+                devops-watcher-111 
             </p>
           </div>
         </div>
