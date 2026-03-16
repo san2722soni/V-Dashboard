@@ -64,7 +64,10 @@ export default function DashboardPage() {
           <div>
             <h1 className="text-3xl font-bold">Welcome back!</h1>
             <p className="text-muted-foreground">
-              {user.email} • {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
+              {user.email}
+            </p>
+            <p className="text-muted-foreground">
+              {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
             </p>
           </div>
         </div>
