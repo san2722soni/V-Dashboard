@@ -15,6 +15,7 @@ import { X } from "lucide-react"
 import { toast } from "sonner"
 import { authService } from "@/lib/auth"
 import type { Developer } from "./column"
+import { getApiBaseUrl } from "@/lib/api-config";
 
 const formSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -85,7 +86,7 @@ export const EditDeveloperModal = ({ isOpen, onClose, onSuccess, developer }: Ed
       setLoading(true)
 
       const response = await authService.authenticatedFetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/dashboard/developer/updateDeveloper`,
+        `${getApiBaseUrl()}/dashboard/developer/updateDeveloper`,
         {
           method: "POST",
           headers: {

@@ -26,7 +26,7 @@
 // //     try {
 // //       setLoading(true);
 // //       const response = await authService.authenticatedFetch(
-// //         `${process.env.NEXT_PUBLIC_API_BASE_URL}/dashboard/developers`
+// //         `${getApiBaseUrl()}/dashboard/developers`
 // //       );
 // //       if (response.ok) {
 // //         const developers = await response.json();
@@ -121,7 +121,7 @@
 //     try {
 //       setLoading(true);
 //       const response = await authService.authenticatedFetch(
-//         `${process.env.NEXT_PUBLIC_API_BASE_URL}/dashboard/developer/getDevelopers`,
+//         `${getApiBaseUrl()}/dashboard/developer/getDevelopers`,
 //         {
 //           method: "POST",
 //           headers : {
@@ -165,7 +165,7 @@
 
 //     try {
 //       const response = await authService.authenticatedFetch(
-//         `${process.env.NEXT_PUBLIC_API_BASE_URL}/dashboard/developer/deleteDeveloper`,
+//         `${getApiBaseUrl()}/dashboard/developer/deleteDeveloper`,
 //         {
 //           method: "DELETE",
 //           headers: {
@@ -244,6 +244,7 @@ import { authService } from "@/lib/auth";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import type { Developer } from "./column";
+import { getApiBaseUrl } from "@/lib/api-config";
 
 export const DeveloperClient = () => {
   const router = useRouter();
@@ -260,7 +261,7 @@ export const DeveloperClient = () => {
       setLoading(true);
 
       const response = await authService.authenticatedFetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/dashboard/developer/getDevelopers`,
+        `${getApiBaseUrl()}/dashboard/developer/getDevelopers`,
         {
           method: "POST",
           headers: {
@@ -318,7 +319,7 @@ export const DeveloperClient = () => {
 
     try {
       const response = await authService.authenticatedFetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/dashboard/developer/deleteDeveloper`,
+        `${getApiBaseUrl()}/dashboard/developer/deleteDeveloper`,
         {
           method: "POST", 
           headers: {

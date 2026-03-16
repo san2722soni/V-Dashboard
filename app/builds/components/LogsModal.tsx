@@ -39,7 +39,7 @@
 //     try {
 //       setLoading(true);
 //       const response = await authService.authenticatedFetch(
-//         `${process.env.NEXT_PUBLIC_API_BASE_URL}/dashboard/build/getLogs`,
+//         `${getApiBaseUrl()}/dashboard/build/getLogs`,
 //         {
 //           method: "POST",
 //           headers: { "Content-Type": "application/json" },
@@ -159,6 +159,7 @@ import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { authService } from "@/lib/auth";
 import type { Build } from "./column";
+import { getApiBaseUrl } from "@/lib/api-config";
 
 interface BuildModalProps {
   isOpen: boolean;
@@ -184,7 +185,7 @@ export const LogsModal = ({ isOpen, onClose, build }: BuildModalProps) => {
     try {
       setLoading(true);
       const response = await authService.authenticatedFetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/dashboard/build/getLogs`,
+        `${getApiBaseUrl()}/dashboard/build/getLogs`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

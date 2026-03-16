@@ -1,8 +1,9 @@
 import {authService} from "@/lib/auth";
+import { getApiBaseUrl } from "@/lib/api-config";
 
 export async function getFeatureFlagValue(flagName: string): Promise<boolean> {
   try {
-    const url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/dashboard/featureFlag/getFeatureFlagByName`;
+    const url = `${getApiBaseUrl()}/dashboard/featureFlag/getFeatureFlagByName`;
 
     const response = await authService.authenticatedFetch(url, {
       method: "POST",

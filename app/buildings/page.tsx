@@ -1,13 +1,14 @@
 export const dynamic = "force-dynamic";
 
 import { BuildingClient } from "./components/client";
+import { getApiBaseUrl } from "@/lib/api-config";
 
 const BuildingsPage = async () => {
   let buildings: any[] = [];
 
   try {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_BASE_URL}/entity/building`,
+      `${getApiBaseUrl()}/entity/building`,
       { cache: "no-store" }
     );
 

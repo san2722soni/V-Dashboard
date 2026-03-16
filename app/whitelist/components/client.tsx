@@ -11,6 +11,7 @@ import { AddWhitelistModal } from "./add-whitelist-modal"
 import { authService } from "@/lib/auth"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
+import { getApiBaseUrl } from "@/lib/api-config";
 
 export const WhitelistClient = () => {
   const router = useRouter()
@@ -23,7 +24,7 @@ export const WhitelistClient = () => {
     try {
       setLoading(true)
       const response = await authService.authenticatedFetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/dashboard/whitelistedUser/getAll`,
+        `${getApiBaseUrl()}/dashboard/whitelistedUser/getAll`,
         {
           method: "POST",
           headers: {
@@ -66,7 +67,7 @@ export const WhitelistClient = () => {
 
     try {
       const response = await authService.authenticatedFetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/dashboard/whitelistedUser/delete`,
+        `${getApiBaseUrl()}/dashboard/whitelistedUser/delete`,
         {
           method: "POST",
           headers: {

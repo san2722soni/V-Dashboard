@@ -8,6 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { toast } from "sonner"
 import { Trash } from "lucide-react"
+import { getApiBaseUrl } from "@/lib/api-config";
 
 import { Button } from "@/components/ui/button"
 import Heading from "@/components/ui/heading"
@@ -91,7 +92,7 @@ export const ConfigForm: React.FC<ConfigFormProps> = ({ initialData }) => {
 
       if (initialData) {
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_BASE_URL}/entity/global-config?id=${initialData._id}`,
+          `${getApiBaseUrl()}/entity/global-config?id=${initialData._id}`,
           {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
@@ -101,7 +102,7 @@ export const ConfigForm: React.FC<ConfigFormProps> = ({ initialData }) => {
         if (!res.ok) throw new Error("Update failed")
       } else {
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_BASE_URL}/entity/global-config`,
+          `${getApiBaseUrl()}/entity/global-config`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -125,7 +126,7 @@ export const ConfigForm: React.FC<ConfigFormProps> = ({ initialData }) => {
     try {
       setLoading(true)
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/entity/global-config/?id=${initialData?._id}`,
+        `${getApiBaseUrl()}/entity/global-config/?id=${initialData?._id}`,
         { method: "DELETE" }
       )
       if (res.ok) {

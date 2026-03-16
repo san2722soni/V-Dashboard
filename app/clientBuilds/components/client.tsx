@@ -15,6 +15,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Rocket, CheckCircle2 } from "lucide-react";
+import { getApiBaseUrl } from "@/lib/api-config";
 
 interface BuildStatus {
   status: string;
@@ -45,7 +46,7 @@ export const BuildPageClient = () => {
     try {
       setLoading(true);
       const response = await authService.authenticatedFetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/dashboard/clientBuild/getBuilds`
+        `${getApiBaseUrl()}/dashboard/clientBuild/getBuilds`
       );
       if (response.ok) {
         const result = await response.json();
@@ -62,7 +63,7 @@ export const BuildPageClient = () => {
   const fetchBuildStatus = async () => {
     try {
       const response = await authService.authenticatedFetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/dashboard/clientBuild/getCurrentStatus`
+        `${getApiBaseUrl()}/dashboard/clientBuild/getCurrentStatus`
       );
       if (response.ok) {
         const result = await response.json();
@@ -80,7 +81,7 @@ export const BuildPageClient = () => {
 
     try {
       const response = await authService.authenticatedFetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/dashboard/clientBuild/deleteBuild`,
+        `${getApiBaseUrl()}/dashboard/clientBuild/deleteBuild`,
         {
           method: "POST",
           headers: {
@@ -104,7 +105,7 @@ export const BuildPageClient = () => {
   const handleCheck = async (id: string) => {
     try {
       const response = await authService.authenticatedFetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/dashboard/clientBuild/setActive`,
+        `${getApiBaseUrl()}/dashboard/clientBuild/setActive`,
         {
           method: "POST",
           headers: {
@@ -138,7 +139,7 @@ export const BuildPageClient = () => {
   const handleDownload = async (build: Build) => {
     try {
       const response = await authService.authenticatedFetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/dashboard/clientBuild/getDownloadUrl`,
+        `${getApiBaseUrl()}/dashboard/clientBuild/getDownloadUrl`,
         {
           method: "POST",
           headers: {
@@ -164,7 +165,7 @@ export const BuildPageClient = () => {
   const handleCopyUrl = async (build: Build) => {
     try {
       const response = await authService.authenticatedFetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/dashboard/clientBuild/getDownloadUrl`,
+        `${getApiBaseUrl()}/dashboard/clientBuild/getDownloadUrl`,
         {
           method: "POST",
           headers: {
@@ -195,7 +196,7 @@ export const BuildPageClient = () => {
 
     try {
       const response = await authService.authenticatedFetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/dashboard/clientBuild/forceReset`,
+        `${getApiBaseUrl()}/dashboard/clientBuild/forceReset`,
         {
           method: "POST",
           headers: {

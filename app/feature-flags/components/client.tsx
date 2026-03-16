@@ -14,6 +14,7 @@ import { authService } from "@/lib/auth"
 import { useRouter } from "next/navigation"
 import { ApiList } from "@/components/ui/api-list"
 import { toast } from "sonner"
+import { getApiBaseUrl } from "@/lib/api-config";
 
 export const FeatureFlagClient = () => {
   const router = useRouter()
@@ -29,7 +30,7 @@ export const FeatureFlagClient = () => {
     try {
       setLoading(true)
       const response = await authService.authenticatedFetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/dashboard/featureFlag/getFeatureFlags`,{
+        `${getApiBaseUrl()}/dashboard/featureFlag/getFeatureFlags`,{
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -56,7 +57,7 @@ export const FeatureFlagClient = () => {
 
     try {
       const response = await authService.authenticatedFetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/dashboard/featureFlag/deleteFeatureFlag`,
+        `${getApiBaseUrl()}/dashboard/featureFlag/deleteFeatureFlag`,
         {
           method: "POST",
           headers: {

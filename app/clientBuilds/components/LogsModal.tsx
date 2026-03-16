@@ -14,6 +14,7 @@ import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { authService } from "@/lib/auth";
 import type { Build } from "./column";
+import { getApiBaseUrl } from "@/lib/api-config";
 
 interface BuildModalProps {
   isOpen: boolean;
@@ -146,7 +147,7 @@ export const LogsModal = ({ isOpen, onClose, build }: LogsModalProps) => {
       setLoading(true);
       setError(null);
       const response = await authService.authenticatedFetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/dashboard/clientBuild/getLogs`,
+        `${getApiBaseUrl()}/dashboard/clientBuild/getLogs`,
         {
           method: "POST",
           headers: {

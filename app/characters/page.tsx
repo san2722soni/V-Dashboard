@@ -1,13 +1,14 @@
 export const dynamic = "force-dynamic";
 
 import { CharacterClient } from "./components/client";
+import { getApiBaseUrl } from "@/lib/api-config";
 
 const CharactersPage = async () => {
   let characters: any[] = [];
 
   try {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_BASE_URL}/entity/character`,
+      `${getApiBaseUrl()}/entity/character`,
       { cache: "no-store" }
     );
 

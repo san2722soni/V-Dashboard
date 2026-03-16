@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { toast } from "sonner"
 import { authService } from "@/lib/auth"
+import { getApiBaseUrl } from "@/lib/api-config";
 
 const formSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -40,7 +41,7 @@ export const NewFeatureFlag = ({ isOpen, onClose, onSuccess }: NewFeatureFlagPro
     try {
       setLoading(true)
       const response = await authService.authenticatedFetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/dashboard/featureFlag/createFeatureFlag`,
+        `${getApiBaseUrl()}/dashboard/featureFlag/createFeatureFlag`,
         {
           method: "POST",
           headers: {

@@ -9,6 +9,7 @@ import * as z from "zod"
 import { toast } from "sonner"
 import { Trash, ArrowLeft } from "lucide-react"
 import Link from "next/link"
+import { getApiBaseUrl } from "@/lib/api-config";
 
 import { Button } from "@/components/ui/button"
 import Heading from "@/components/ui/heading"
@@ -147,7 +148,7 @@ export const BuildingForm: React.FC<BuildingFormProps> = ({ initialData }) => {
 
       if (initialData) {
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_BASE_URL}/entity/building?id=${initialData._id}`,
+          `${getApiBaseUrl()}/entity/building?id=${initialData._id}`,
           {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
@@ -160,7 +161,7 @@ export const BuildingForm: React.FC<BuildingFormProps> = ({ initialData }) => {
         }
       } else {
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_BASE_URL}/entity/building`,
+          `${getApiBaseUrl()}/entity/building`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -187,7 +188,7 @@ export const BuildingForm: React.FC<BuildingFormProps> = ({ initialData }) => {
     try {
       setLoading(true)
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/entity/building/?id=${initialData?._id}`,
+        `${getApiBaseUrl()}/entity/building/?id=${initialData?._id}`,
         { method: "DELETE" }
       )
       if (res.ok) {

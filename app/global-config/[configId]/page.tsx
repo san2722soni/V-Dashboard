@@ -1,4 +1,5 @@
 import { ConfigForm } from "../components/config-form";
+import { getApiBaseUrl } from "@/lib/api-config";
 
 interface ConfigPageProps {
   params: {
@@ -12,7 +13,7 @@ const ConfigEditPage = async ({ params }: ConfigPageProps) => {
   if (params.configId !== "new") {
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/entity/global-config/?id=${params.configId}`
+        `${getApiBaseUrl()}/entity/global-config/?id=${params.configId}`
       );
       if (!res.ok) {
         throw new Error("Not found");

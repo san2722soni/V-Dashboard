@@ -1,6 +1,7 @@
 "use client"
 
 import type React from "react"
+import { getApiBaseUrl } from "@/lib/api-config";
 
 import { useState } from "react"
 import { Copy, Edit, Eye, MoreHorizontal, Trash } from "lucide-react"
@@ -35,7 +36,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
   const onDelete = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/entity/building/?id=${data.id}`, {
+      const res = await fetch(`${getApiBaseUrl()}/entity/building/?id=${data.id}`, {
         method: "DELETE",
       });
 

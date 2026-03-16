@@ -15,6 +15,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Rocket, CheckCircle2 } from "lucide-react";
+import { getApiBaseUrl } from "@/lib/api-config";
 
 interface BuildStatus {
   status: string;
@@ -45,7 +46,7 @@ export const BuildPageClient = () => {
     try {
       setLoading(true);
       const response = await authService.authenticatedFetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/dashboard/build/getBuilds`,
+        `${getApiBaseUrl()}/dashboard/build/getBuilds`,
       );
       if (response.ok) {
         const result = await response.json();
@@ -62,7 +63,7 @@ export const BuildPageClient = () => {
   const fetchBuildStatus = async () => {
     try {
       const response = await authService.authenticatedFetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/dashboard/build/getCurrentStatus`,
+        `${getApiBaseUrl()}/dashboard/build/getCurrentStatus`,
       );
       if (response.ok) {
         const result = await response.json();
@@ -80,7 +81,7 @@ export const BuildPageClient = () => {
 
     try {
       const response = await authService.authenticatedFetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/dashboard/build/deleteBuild`,
+        `${getApiBaseUrl()}/dashboard/build/deleteBuild`,
         {
           method: "POST",
           headers: {
@@ -104,7 +105,7 @@ export const BuildPageClient = () => {
   const handleCheck = async (id: string) => {
     try {
       const response = await authService.authenticatedFetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/dashboard/build/setActive`,
+        `${getApiBaseUrl()}/dashboard/build/setActive`,
         {
           method: "POST",
           headers: {
@@ -142,7 +143,7 @@ export const BuildPageClient = () => {
 
     try {
       const response = await authService.authenticatedFetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/dashboard/build/forceReset`,
+        `${getApiBaseUrl()}/dashboard/build/forceReset`,
         {
           method: "POST",
           headers: {

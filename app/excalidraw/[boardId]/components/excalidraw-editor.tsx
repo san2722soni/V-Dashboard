@@ -10,13 +10,14 @@ import { Input } from "@/components/ui/input"
 import { Save, ArrowLeft, Loader2 } from "lucide-react"
 import { useTheme } from "next-themes"
 import "@excalidraw/excalidraw/index.css"
+import { getApiBaseUrl } from "@/lib/api-config";
 
 const Excalidraw = dynamic(
   async () => (await import("@excalidraw/excalidraw")).Excalidraw,
   { ssr: false }
 )
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
+const API_BASE_URL = getApiBaseUrl()
 const DB_NAME = "excalidraw-cache"
 const STORE_NAME = "boards"
 

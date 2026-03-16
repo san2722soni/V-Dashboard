@@ -9,6 +9,7 @@ import * as z from "zod";
 import { Trash, Plus, X, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import Link from "next/link";
+import { getApiBaseUrl } from "@/lib/api-config";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -201,7 +202,7 @@ export const CharacterForm: React.FC<CharacterFormProps> = ({ initialData }) => 
       try {
         // Fetch buildings
         const buildingsRes = await fetch(
-          `${process.env.NEXT_PUBLIC_API_BASE_URL}/entity/building`,
+          `${getApiBaseUrl()}/entity/building`,
           { cache: "no-store" }
         );
         if (buildingsRes.ok) {
@@ -213,7 +214,7 @@ export const CharacterForm: React.FC<CharacterFormProps> = ({ initialData }) => 
 
         // Fetch inventory items
         const inventoryRes = await fetch(
-          `${process.env.NEXT_PUBLIC_API_BASE_URL}/entity/inventory`,
+          `${getApiBaseUrl()}/entity/inventory`,
           { cache: "no-store" }
         );
         if (inventoryRes.ok) {
@@ -276,7 +277,7 @@ export const CharacterForm: React.FC<CharacterFormProps> = ({ initialData }) => 
       let res;
       if (initialData) {
         res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_BASE_URL}/entity/character?id=${initialData._id}`,
+          `${getApiBaseUrl()}/entity/character?id=${initialData._id}`,
           {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
@@ -285,7 +286,7 @@ export const CharacterForm: React.FC<CharacterFormProps> = ({ initialData }) => 
         );
       } else {
         res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_BASE_URL}/entity/character`,
+          `${getApiBaseUrl()}/entity/character`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -315,7 +316,7 @@ export const CharacterForm: React.FC<CharacterFormProps> = ({ initialData }) => 
     try {
       setLoading(true);
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/entity/character?id=${initialData!._id!}`,
+        `${getApiBaseUrl()}/entity/character?id=${initialData!._id!}`,
         { method: "DELETE" }
       );
       if (res.ok) {

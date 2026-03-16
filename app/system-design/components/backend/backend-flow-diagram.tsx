@@ -16,6 +16,7 @@ import "@/app/globals.css";
 import dagre from "dagre";
 import "@xyflow/react/dist/style.css";
 import { APIModal } from "./backend-modal";
+import { getApiBaseUrl } from "@/lib/api-config";
 
 // Role types
 type UserRole = "developer" | "admin" | "user";
@@ -90,7 +91,7 @@ interface BackendFlowDiagramProps {
 
 export function BackendFlowDiagram({
   onNodeClick,
-  apiUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}/docs/structure`,
+  apiUrl = `${getApiBaseUrl()}/docs/structure`,
 }: BackendFlowDiagramProps) {
   const [selectedNode, setSelectedNode] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);

@@ -4,8 +4,7 @@ import type {
   LoginResponse,
   VerifyOtpResponse,
 } from "./Types";
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+import { getApiBaseUrl } from "./api-config";
 
 class AuthService {
   private readonly ACCESS_TOKEN_KEY = "accessToken";
@@ -20,7 +19,7 @@ class AuthService {
   ------------------------------------------------------ */
 
   async sendOtp(email: string): Promise<LoginResponse> {
-    const response = await fetch(`${API_BASE_URL}/auth/developer/login`, {
+    const response = await fetch(`${getApiBaseUrl()}/auth/developer/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email }),
@@ -36,7 +35,7 @@ class AuthService {
   }
 
   async verifyOtp(email: string, otp: string): Promise<VerifyOtpResponse> {
-    const response = await fetch(`${API_BASE_URL}/auth/developer/verifyDeveloper`, {
+    const response = await fetch(`${getApiBaseUrl()}/auth/developer/verifyDeveloper`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, otp }),
@@ -69,7 +68,7 @@ class AuthService {
     // Create refresh operation
     this.refreshPromise = (async () => {
       try {
-        const response = await fetch(`${API_BASE_URL}/auth/refresh/newToken`, {
+        const response = await fetch(`${getApiBaseUrl()}/auth/refresh/newToken`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

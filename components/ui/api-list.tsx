@@ -2,6 +2,7 @@
 
 
 import { ApiAlert } from "./api-alert";
+import { getApiBaseUrl } from "@/lib/api-config";
 
 interface ApiListProps {
   entityName: string;
@@ -14,7 +15,7 @@ export const ApiList: React.FC<ApiListProps> = ({
   entityIdName,
   router
 }) => {
-  const origin = process.env.NEXT_PUBLIC_API_BASE_URL;
+  const origin = getApiBaseUrl();
   const baseUrl = `${origin}${router}`;
 
   return (

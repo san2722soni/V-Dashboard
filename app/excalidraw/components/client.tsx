@@ -10,6 +10,7 @@ import { columns, type ExcalidrawBoard } from "./columns"
 import { authService } from "@/lib/auth"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
+import { getApiBaseUrl } from "@/lib/api-config";
 
 export const ExcalidrawListClient = () => {
   const router = useRouter()
@@ -21,7 +22,7 @@ export const ExcalidrawListClient = () => {
     try {
       setLoading(true)
       const response = await authService.authenticatedFetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/dashboard/excalidraw/getBoards`,
+        `${getApiBaseUrl()}/dashboard/excalidraw/getBoards`,
         {
           method: "POST",
           headers: {
@@ -64,7 +65,7 @@ export const ExcalidrawListClient = () => {
   const handleClone = async (id: string) => {
     try {
       const response = await authService.authenticatedFetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/dashboard/excalidraw/cloneBoard`,
+        `${getApiBaseUrl()}/dashboard/excalidraw/cloneBoard`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -93,7 +94,7 @@ export const ExcalidrawListClient = () => {
 
     try {
       const response = await authService.authenticatedFetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/dashboard/excalidraw/deleteBoard`,
+        `${getApiBaseUrl()}/dashboard/excalidraw/deleteBoard`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
