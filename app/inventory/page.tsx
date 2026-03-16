@@ -1,13 +1,14 @@
 export const dynamic = "force-dynamic";
 
 import { InventoryClient } from "./components/client";
+import { getApiBaseUrl } from "@/lib/api-config";
 
 const InventoryPage = async () => {
   let items: any[] = [];
 
   try {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_BASE_URL}/entity/inventory`,
+      `${getApiBaseUrl()}/entity/inventory`,
       { cache: "no-store" }
     );
 

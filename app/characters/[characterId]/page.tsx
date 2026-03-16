@@ -1,4 +1,5 @@
 import { CharacterForm } from "../components/character-form";
+import { getApiBaseUrl } from "@/lib/api-config";
 
 interface CharacterPageProps {
   params: {
@@ -12,7 +13,7 @@ const CharacterPage = async ({ params }: CharacterPageProps) => {
   if (params.characterId !== "new") {
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/entity/character/?id=${params.characterId}`,
+        `${getApiBaseUrl()}/entity/character/?id=${params.characterId}`,
         { cache: "no-store" }
       );
       if (!res.ok) {

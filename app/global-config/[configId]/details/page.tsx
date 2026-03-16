@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { ArrowLeft, Edit } from "lucide-react";
 import Link from "next/link";
+import { getApiBaseUrl } from "@/lib/api-config";
 
 import { Button } from "@/components/ui/button";
 import Heading from "@/components/ui/heading";
@@ -18,7 +19,7 @@ const ConfigDetailsPage = async ({ params }: ConfigDetailsPageProps) => {
 
   try {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_BASE_URL}/entity/global-config/?id=${params.configId}`
+      `${getApiBaseUrl()}/entity/global-config/?id=${params.configId}`
     );
     if (!res.ok) throw new Error("Not found");
     const json = await res.json();

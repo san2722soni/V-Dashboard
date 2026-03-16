@@ -26,6 +26,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { User as UserType } from "@/lib/Types";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { ServerToggle } from "@/components/server-toggle";
 const Navbar = () => {
   const pathname = usePathname();
   const router = useRouter();
@@ -189,6 +190,8 @@ const Navbar = () => {
 
             {/* Right side items */}
             <div className="ml-auto flex items-center space-x-4">
+              {/* Server Toggle */}
+              <ServerToggle />
               {/* Theme Toggle */}
               <ThemeToggle />
 

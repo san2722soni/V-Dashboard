@@ -1,13 +1,14 @@
 export const dynamic = "force-dynamic";
 
 import { GlobalConfigClient } from "./components/client";
+import { getApiBaseUrl } from "@/lib/api-config";
 
 const GlobalConfigPage = async () => {
   let configs: any[] = [];
 
   try {
     const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_BASE_URL}/entity/global-config`,
+      `${getApiBaseUrl()}/entity/global-config`,
       { cache: "no-store" }
     );
 

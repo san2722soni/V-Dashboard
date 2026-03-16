@@ -29,6 +29,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
+import { getApiBaseUrl } from "@/lib/api-config";
 
 const formSchema = z.object({
   message: z.string().min(1, "Message is required").min(5, "Message must be at least 5 characters"),
@@ -77,7 +78,7 @@ export const NewBuild = ({ isOpen, onClose, onSuccess }: NewBuildProps) => {
       }
 
       const res = await authService.authenticatedFetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/dashboard/clientBuild/createBuild`,
+        `${getApiBaseUrl()}/dashboard/clientBuild/createBuild`,
         {
           method: "POST",
           headers: {

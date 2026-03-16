@@ -22,6 +22,7 @@ import { useRouter } from "next/navigation";
 import { authService } from "@/lib/auth";
 import { getFeatureFlagValue } from "@/lib/feature-flag";
 import VCMWorkflow from "./vcm/vcmDesign";
+import { getApiBaseUrl } from "@/lib/api-config";
 
 export default function Home() {
   const router = useRouter();
@@ -34,7 +35,7 @@ export default function Home() {
 
   useEffect(() => {
     async function checkAccess() {
-      const url = `${process.env.NEXT_PUBLIC_API_BASE_URL}/dashboard/featureFlag/getFeatureFlagByName`;
+      const url = `${getApiBaseUrl()}/dashboard/featureFlag/getFeatureFlagByName`;
 
       let requiresAuth = true; // DEFAULT: secure
 

@@ -1,4 +1,5 @@
 import { InventoryForm } from "../components/inventory-form";
+import { getApiBaseUrl } from "@/lib/api-config";
 
 interface InventoryPageProps {
   params: {
@@ -12,7 +13,7 @@ const InventoryEditPage = async ({ params }: InventoryPageProps) => {
   if (params.itemId !== "new") {
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/entity/inventory/?id=${params.itemId}`,
+        `${getApiBaseUrl()}/entity/inventory/?id=${params.itemId}`,
         { cache: "no-store" }
       );
       if (!res.ok) {

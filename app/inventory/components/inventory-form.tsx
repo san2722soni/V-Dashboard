@@ -9,6 +9,7 @@ import * as z from "zod"
 import { toast } from "sonner"
 import { Trash, ArrowLeft } from "lucide-react"
 import Link from "next/link"
+import { getApiBaseUrl } from "@/lib/api-config";
 
 import { Button } from "@/components/ui/button"
 import Heading from "@/components/ui/heading"
@@ -151,7 +152,7 @@ export const InventoryForm: React.FC<InventoryFormProps> = ({ initialData }) => 
 
       if (initialData) {
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_BASE_URL}/entity/inventory?id=${initialData._id}`,
+          `${getApiBaseUrl()}/entity/inventory?id=${initialData._id}`,
           {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
@@ -164,7 +165,7 @@ export const InventoryForm: React.FC<InventoryFormProps> = ({ initialData }) => 
         }
       } else {
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_BASE_URL}/entity/inventory`,
+          `${getApiBaseUrl()}/entity/inventory`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -191,7 +192,7 @@ export const InventoryForm: React.FC<InventoryFormProps> = ({ initialData }) => 
     try {
       setLoading(true)
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/entity/inventory/?id=${initialData?._id}`,
+        `${getApiBaseUrl()}/entity/inventory/?id=${initialData?._id}`,
         { method: "DELETE" }
       )
       if (res.ok) {

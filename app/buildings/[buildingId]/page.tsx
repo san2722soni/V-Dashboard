@@ -1,4 +1,5 @@
 import { BuildingForm } from "../components/building-form";
+import { getApiBaseUrl } from "@/lib/api-config";
 
 interface BuildingPageProps {
   params: {
@@ -12,7 +13,7 @@ const BuildingPage = async ({ params }: BuildingPageProps) => {
   if (params.buildingId !== "new") {
     try {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/entity/building/?id=${params.buildingId}`,
+        `${getApiBaseUrl()}/entity/building/?id=${params.buildingId}`,
         { cache: "no-store" }
       );
       if (!res.ok) {

@@ -32,6 +32,7 @@ import { Badge } from "@/components/ui/badge";
 import { X } from "lucide-react";
 import { toast } from "sonner";
 import { authService } from "@/lib/auth";
+import { getApiBaseUrl } from "@/lib/api-config";
 
 const formSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -92,7 +93,7 @@ export const NewDeveloperModal = ({
       setLoading(true);
 
       const response = await authService.authenticatedFetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/dashboard/developer/createDeveloper`,
+        `${getApiBaseUrl()}/dashboard/developer/createDeveloper`,
         {
           method: "POST",
           headers: {

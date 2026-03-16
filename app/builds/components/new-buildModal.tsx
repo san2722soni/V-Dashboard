@@ -22,6 +22,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
+import { getApiBaseUrl } from "@/lib/api-config";
 
 const formSchema = z.object({
   message: z.string().min(1, "Message is required"),
@@ -47,7 +48,7 @@ export const NewBuild = ({ isOpen, onClose, onSuccess }: NewBuildProps) => {
     try {
       setLoading(true);
       const res = await authService.authenticatedFetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/dashboard/build/createBuild`,
+        `${getApiBaseUrl()}/dashboard/build/createBuild`,
         {
           method: "POST",
           headers: {

@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { authService } from "@/lib/auth"
 import { toast } from "sonner"
+import { getApiBaseUrl } from "@/lib/api-config"
 
 interface AddWhitelistModalProps {
   isOpen: boolean
@@ -34,7 +35,7 @@ export const AddWhitelistModal = ({ isOpen, onClose, onSuccess }: AddWhitelistMo
     try {
       setLoading(true)
       const response = await authService.authenticatedFetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/dashboard/whitelistedUser/add`,
+        `${getApiBaseUrl()}/dashboard/whitelistedUser/add`,
         {
           method: "POST",
           headers: {
