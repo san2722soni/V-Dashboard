@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { User, Menu, X, LogOut } from "lucide-react";
+import { User, Menu, X, LogOut, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { authService } from "@/lib/auth";
 import {
   Dialog,
@@ -26,15 +26,41 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { User as UserType } from "@/lib/Types";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { ServerToggle } from "@/components/server-toggle";
+import { ServerBadge } from "@/components/server-toggle";
 const Navbar = () => {
   const pathname = usePathname();
   const router = useRouter();
+  const navRef = useRef<HTMLDivElement>(null);
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [currentUser, setCurrentUser] = useState<UserType | null>(null);
   const [isProfileDialogOpen, setIsProfileDialogOpen] = useState(false);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  const checkScroll = useCallback(() => {
+    const el = navRef.current;
+    if (!el) return;
+    setCanScrollLeft(el.scrollLeft > 0);
+    setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 1);
+  }, []);
+
+  useEffect(() => {
+    const el = navRef.current;
+    if (!el) return;
+    checkScroll();
+    el.addEventListener("scroll", checkScroll);
+    window.addEventListener("resize", checkScroll);
+    return () => {
+      el.removeEventListener("scroll", checkScroll);
+      window.removeEventListener("resize", checkScroll);
+    };
+  }, [checkScroll, isAuthenticated]);
+
+  const scroll = (direction: "left" | "right") => {
+    navRef.current?.scrollBy({ left: direction === "left" ? -200 : 200, behavior: "smooth" });
+  };
 
   // Check authentication status on mount and pathname changes
   useEffect(() => {
@@ -131,6 +157,11 @@ const Navbar = () => {
       label: "Feature Flags",
       active: pathname === "/feature-flags",
     },
+    (isAdmin || currentUser?.role === "developer") && {
+      href: `/queries`,
+      label: "Queries",
+      active: pathname === "/queries",
+    },
     {
       href: `/builds`,
       label: "Builds",
@@ -166,32 +197,54 @@ const Navbar = () => {
             </div>
 
             {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center space-x-6 mx-6 overflow-x-auto scrollbar-hide whitespace-nowrap">
-              {routes
-                .filter(
-                  (r): r is { href: string; label: string; active: boolean } =>
-                    Boolean(r),
-                )
-                .map((route) => (
-                  <Link
-                    key={route.href}
-                    href={route.href}
-                    className={cn(
-                      "text-sm font-medium transition-colors hover:text-primary px-3 py-2 rounded-md",
-                      route.active
-                        ? "text-foreground bg-muted"
-                        : "text-muted-foreground hover:text-foreground",
-                    )}
-                  >
-                    {route.label}
-                  </Link>
-                ))}
-            </nav>
+            <div className="hidden md:flex items-center flex-1 min-w-0 mx-4 relative">
+              {canScrollLeft && (
+                <button
+                  onClick={() => scroll("left")}
+                  className="absolute left-0 z-10 h-full px-1 bg-gradient-to-r from-background/95 to-transparent"
+                >
+                  <ChevronLeft className="h-4 w-4 text-muted-foreground" />
+                </button>
+              )}
+              <nav
+                ref={navRef}
+                className="flex items-center gap-1 overflow-x-auto scrollbar-none whitespace-nowrap px-6"
+                style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+              >
+                {routes
+                  .filter(
+                    (r): r is { href: string; label: string; active: boolean } =>
+                      Boolean(r),
+                  )
+                  .map((route) => (
+                    <Link
+                      key={route.href}
+                      href={route.href}
+                      className={cn(
+                        "text-sm font-medium transition-colors hover:text-primary px-3 py-2 rounded-md shrink-0",
+                        route.active
+                          ? "text-foreground bg-muted"
+                          : "text-muted-foreground hover:text-foreground",
+                      )}
+                    >
+                      {route.label}
+                    </Link>
+                  ))}
+              </nav>
+              {canScrollRight && (
+                <button
+                  onClick={() => scroll("right")}
+                  className="absolute right-0 z-10 h-full px-1 bg-gradient-to-l from-background/95 to-transparent"
+                >
+                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                </button>
+              )}
+            </div>
 
             {/* Right side items */}
             <div className="ml-auto flex items-center space-x-4">
               {/* Server Toggle */}
-              <ServerToggle />
+              <ServerBadge />
               {/* Theme Toggle */}
               <ThemeToggle />
 

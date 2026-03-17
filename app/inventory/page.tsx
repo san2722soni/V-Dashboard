@@ -1,36 +1,39 @@
-export const dynamic = "force-dynamic";
+"use client"
 
-import { InventoryClient } from "./components/client";
-import { getApiBaseUrl } from "@/lib/api-config";
+import { useEffect, useState } from "react"
+import { InventoryClient } from "./components/client"
+import { getApiBaseUrl } from "@/lib/api-config"
 
-const InventoryPage = async () => {
-  let items: any[] = [];
+const InventoryPage = () => {
+  const [items, setItems] = useState<any[]>([])
 
-  try {
-    const res = await fetch(
-      `${getApiBaseUrl()}/entity/inventory`,
-      { cache: "no-store" }
-    );
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await fetch(`${getApiBaseUrl()}/entity/inventory`)
+        const data = await res.json()
+        const list = Array.isArray(data) ? data : data.inventory
 
-    const data = await res.json();
-
-    const list = Array.isArray(data) ? data : data.inventory;
-
-    items = list.map((item: any) => ({
-      id: item._id || "",
-      name: item.name,
-      attack: item.attack,
-      health: item.health,
-      range: item.range,
-      duration: item.duration,
-      round: item.round,
-      storageCost: item.storageCost,
-      purchaseCost: item.purchaseCost,
-      isActive: item.isActive,
-    }));
-  } catch (error) {
-    // Error handling
-  }
+        setItems(
+          list.map((item: any) => ({
+            id: item._id || "",
+            name: item.name,
+            attack: item.attack,
+            health: item.health,
+            range: item.range,
+            duration: item.duration,
+            round: item.round,
+            storageCost: item.storageCost,
+            purchaseCost: item.purchaseCost,
+            isActive: item.isActive,
+          }))
+        )
+      } catch (error) {
+        console.error("Failed to fetch inventory:", error)
+      }
+    }
+    fetchData()
+  }, [])
 
   return (
     <div className="flex-col">
@@ -38,7 +41,7 @@ const InventoryPage = async () => {
         <InventoryClient data={items} />
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default InventoryPage;
+export default InventoryPage

@@ -17,6 +17,7 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { authService } from "@/lib/auth";
+import { ServerSwitchButton } from "@/components/server-toggle";
 
 /**
  * Sign-in page with OTP-based authentication
@@ -87,6 +88,9 @@ export default function SignInPage() {
           <CardDescription>
             Sign in to your account using OTP verification
           </CardDescription>
+          <div className="pt-2">
+            <ServerSwitchButton />
+          </div>
         </CardHeader>
         <CardContent>
           {/* User Type Selection */}

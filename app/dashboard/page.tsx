@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { Badge } from "@/components/ui/badge"
 import { authService } from "@/lib/auth"
 import type { User } from "@/lib/Types"
+import { ServerSwitchButton } from "@/components/server-toggle"
 
 export default function DashboardPage() {
   const [user, setUser] = useState<User | null>(null)
@@ -69,10 +70,11 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Role Badge */}
+        {/* Role Badge & Server Switch */}
         <div className="flex items-center gap-2">
           <Badge className={`${roleContent?.color} text-white`}>{user.role.toUpperCase()}</Badge>
           {user.profileComplete && <Badge variant="secondary">Profile Complete</Badge>}
+          <ServerSwitchButton />
         </div>
       </div>
     </div>

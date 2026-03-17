@@ -1,30 +1,33 @@
-export const dynamic = "force-dynamic";
+"use client"
 
-import { GlobalConfigClient } from "./components/client";
-import { getApiBaseUrl } from "@/lib/api-config";
+import { useEffect, useState } from "react"
+import { GlobalConfigClient } from "./components/client"
+import { getApiBaseUrl } from "@/lib/api-config"
 
-const GlobalConfigPage = async () => {
-  let configs: any[] = [];
+const GlobalConfigPage = () => {
+  const [configs, setConfigs] = useState<any[]>([])
 
-  try {
-    const res = await fetch(
-      `${getApiBaseUrl()}/entity/global-config`,
-      { cache: "no-store" }
-    );
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await fetch(`${getApiBaseUrl()}/entity/global-config`)
+        const data = await res.json()
+        const list = Array.isArray(data) ? data : data.configs
 
-    const data = await res.json();
-
-    const list = Array.isArray(data) ? data : data.configs;
-
-    configs = list.map((item: any) => ({
-      id: item._id || "",
-      key: item.key,
-      value: item.value,
-      valueType: item.valueType,
-    }));
-  } catch (error) {
-    console.error("Failed to fetch global config:", error);
-  }
+        setConfigs(
+          list.map((item: any) => ({
+            id: item._id || "",
+            key: item.key,
+            value: item.value,
+            valueType: item.valueType,
+          }))
+        )
+      } catch (error) {
+        console.error("Failed to fetch global config:", error)
+      }
+    }
+    fetchData()
+  }, [])
 
   return (
     <div className="flex-col">
@@ -32,7 +35,7 @@ const GlobalConfigPage = async () => {
         <GlobalConfigClient data={configs} />
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default GlobalConfigPage;
+export default GlobalConfigPage

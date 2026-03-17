@@ -167,3 +167,22 @@ export interface CharacterColumn {
   weight: number
   isActive: boolean
 }
+
+// Query types
+
+export interface Query {
+  _id: string
+  creator: {
+    developerId: string
+    email: string
+  }
+  type: "mongo" | "redis"
+  queryString: string
+  description: string
+  status: "pending" | "approved" | "rejected"
+  approvedBy: { developerId: string; email: string } | null
+  result: any
+  executedAt: string | null
+  createdAt: string
+  updatedAt: string
+}

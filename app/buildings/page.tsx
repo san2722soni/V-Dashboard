@@ -1,31 +1,35 @@
-export const dynamic = "force-dynamic";
+"use client"
 
-import { BuildingClient } from "./components/client";
-import { getApiBaseUrl } from "@/lib/api-config";
+import { useEffect, useState } from "react"
+import { BuildingClient } from "./components/client"
+import { getApiBaseUrl } from "@/lib/api-config"
 
-const BuildingsPage = async () => {
-  let buildings: any[] = [];
+const BuildingsPage = () => {
+  const [buildings, setBuildings] = useState<any[]>([])
 
-  try {
-    const res = await fetch(
-      `${getApiBaseUrl()}/entity/building`,
-      { cache: "no-store" }
-    );
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await fetch(`${getApiBaseUrl()}/entity/building`)
+        const data = await res.json()
 
-    const data = await res.json();
-
-    buildings = data.map((item: any) => ({
-      id: item._id || "",
-      name: item.name,
-      health: item.health,
-      attack: item.attack,
-      storage: item.storage,
-      level: item.level,
-      isActive: item.isActive,
-    }));
-  } catch (error) {
-    console.error("Failed to fetch buildings:", error);
-  }
+        setBuildings(
+          data.map((item: any) => ({
+            id: item._id || "",
+            name: item.name,
+            health: item.health,
+            attack: item.attack,
+            storage: item.storage,
+            level: item.level,
+            isActive: item.isActive,
+          }))
+        )
+      } catch (error) {
+        console.error("Failed to fetch buildings:", error)
+      }
+    }
+    fetchData()
+  }, [])
 
   return (
     <div className="flex-col">
@@ -33,7 +37,7 @@ const BuildingsPage = async () => {
         <BuildingClient data={buildings} />
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default BuildingsPage;
+export default BuildingsPage

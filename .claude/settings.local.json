@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" https://olivs.in/api/entity/character)",
+      "Bash(curl -s https://olivs.in/api/entity/character)",
+      "Read(//f/V_WORK/V-Server/route/docs/**)",
+      "Read(//f/V_WORK/V-Server/scripts/**)",
+      "Read(//f/V_WORK/V-Server/**)",
+      "Bash(npm run:*)",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(f''''Paths: {len\\(d[paths]\\)}, Tags: {len\\(d[tags]\\)}''''\\)\")",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(f''''Paths: {len\\(d[paths]\\)}, Tags: {len\\(d[tags]\\)}''''\\)\")",
+      "Bash(node -e \"const d=require\\(''''./lib/openapi-spec.json''''\\); console.log\\(''''Paths:'''', Object.keys\\(d.paths\\).length, ''''Tags:'''', d.tags.length\\)\")"
+    ],
+    "additionalDirectories": [
+      "F:\\V_WORK\\V-Server\\scripts",
+      "F:\\V_WORK\\V-Server\\route\\docs"
+    ]
+  }
+}

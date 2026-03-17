@@ -1,32 +1,36 @@
-export const dynamic = "force-dynamic";
+"use client"
 
-import { CharacterClient } from "./components/client";
-import { getApiBaseUrl } from "@/lib/api-config";
+import { useEffect, useState } from "react"
+import { CharacterClient } from "./components/client"
+import { getApiBaseUrl } from "@/lib/api-config"
 
-const CharactersPage = async () => {
-  let characters: any[] = [];
+const CharactersPage = () => {
+  const [characters, setCharacters] = useState<any[]>([])
 
-  try {
-    const res = await fetch(
-      `${getApiBaseUrl()}/entity/character`,
-      { cache: "no-store" }
-    );
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await fetch(`${getApiBaseUrl()}/entity/character`)
+        const data = await res.json()
 
-    const data = await res.json();
-
-    characters = data.map((item: any) => ({
-      id: item._id || "",
-      name: item.name,
-      level: item.level,
-      health: item.health,
-      attackDamage: item.attackDamage,
-      attackType: item.attackType,
-      weight: item.weight,
-      isActive: item.isActive,
-    }));
-  } catch (error) {
-    console.error("Failed to fetch characters:", error);
-  }
+        setCharacters(
+          data.map((item: any) => ({
+            id: item._id || "",
+            name: item.name,
+            level: item.level,
+            health: item.health,
+            attackDamage: item.attackDamage,
+            attackType: item.attackType,
+            weight: item.weight,
+            isActive: item.isActive,
+          }))
+        )
+      } catch (error) {
+        console.error("Failed to fetch characters:", error)
+      }
+    }
+    fetchData()
+  }, [])
 
   return (
     <div className="flex-col">
@@ -34,7 +38,7 @@ const CharactersPage = async () => {
         <CharacterClient data={characters} />
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default CharactersPage;
+export default CharactersPage
