@@ -16,6 +16,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { authService } from "@/lib/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
@@ -26,6 +27,7 @@ import { getApiBaseUrl } from "@/lib/api-config";
 
 const formSchema = z.object({
   message: z.string().min(1, "Message is required"),
+  branchName: z.string().optional(),
 });
 
 interface NewBuildProps {
@@ -41,6 +43,7 @@ export const NewBuild = ({ isOpen, onClose, onSuccess }: NewBuildProps) => {
     resolver: zodResolver(formSchema),
     defaultValues: {
       message: "",
+      branchName: "",
     },
   });
 
@@ -88,6 +91,26 @@ export const NewBuild = ({ isOpen, onClose, onSuccess }: NewBuildProps) => {
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="branchName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Branch Name</FormLabel>
+                  <p className="text-xs text-red-600 dark:text-red-400 font-medium">
+                    Please enter the correct branch name — no extra spaces or typos. Defaults to &quot;dev&quot; if left empty.
+                  </p>
+                  <FormControl>
+                    <Input
+                      placeholder="e.g. dev, main, feature-xyz"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <FormField
               control={form.control}
               name="message"

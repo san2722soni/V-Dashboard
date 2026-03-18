@@ -11,7 +11,8 @@
       "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(f''''Paths: {len\\(d[paths]\\)}, Tags: {len\\(d[tags]\\)}''''\\)\")",
       "Bash(node -e \"const d=require\\(''''./lib/openapi-spec.json''''\\); console.log\\(''''Paths:'''', Object.keys\\(d.paths\\).length, ''''Tags:'''', d.tags.length\\)\")",
       "Read(//c/Users/Aswin/.claude/plans/**)",
-      "Bash(npx shadcn@latest add alert-dialog --yes)"
+      "Bash(npx shadcn@latest add alert-dialog --yes)",
+      "Bash(npx tsc:*)"
     ],
     "additionalDirectories": [
       "F:\\V_WORK\\V-Server\\scripts",

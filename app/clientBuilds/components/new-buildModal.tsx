@@ -16,6 +16,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -40,6 +41,7 @@ const formSchema = z.object({
     errorMap: () => ({ message: "Please select a valid release type" }),
   }),
   buildFormat: z.enum(["apk", "aab"]).optional(),
+  branchName: z.string().optional(),
 });
 
 interface NewBuildProps {
@@ -58,6 +60,7 @@ export const NewBuild = ({ isOpen, onClose, onSuccess }: NewBuildProps) => {
       platform: "windows",
       releaseType: "release",
       buildFormat: "apk",
+      branchName: "",
     },
   });
 
@@ -72,6 +75,10 @@ export const NewBuild = ({ isOpen, onClose, onSuccess }: NewBuildProps) => {
         platform: values.platform,
         releaseType: values.releaseType,
       };
+
+      if (values.branchName) {
+        payload.branchName = values.branchName;
+      }
 
       if (values.platform === "android" && values.buildFormat) {
         payload.buildFormat = values.buildFormat;
@@ -184,6 +191,27 @@ export const NewBuild = ({ isOpen, onClose, onSuccess }: NewBuildProps) => {
                 )}
               />
             )}
+
+            <FormField
+              control={form.control}
+              name="branchName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Branch Name</FormLabel>
+                  <p className="text-xs text-red-600 dark:text-red-400 font-medium">
+                    Please enter the correct branch name — no extra spaces or typos. Defaults to &quot;dev&quot; if left empty.
+                  </p>
+                  <FormControl>
+                    <Input
+                      placeholder="e.g. dev, main, feature-xyz"
+                      disabled={loading}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <FormField
               control={form.control}
