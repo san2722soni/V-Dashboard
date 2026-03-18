@@ -10,12 +10,14 @@
       "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(f''''Paths: {len\\(d[paths]\\)}, Tags: {len\\(d[tags]\\)}''''\\)\")",
       "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(f''''Paths: {len\\(d[paths]\\)}, Tags: {len\\(d[tags]\\)}''''\\)\")",
       "Bash(node -e \"const d=require\\(''''./lib/openapi-spec.json''''\\); console.log\\(''''Paths:'''', Object.keys\\(d.paths\\).length, ''''Tags:'''', d.tags.length\\)\")",
-      "Read(//c/Users/Aswin/.claude/plans/**)"
+      "Read(//c/Users/Aswin/.claude/plans/**)",
+      "Bash(npx shadcn@latest add alert-dialog --yes)"
     ],
     "additionalDirectories": [
       "F:\\V_WORK\\V-Server\\scripts",
       "F:\\V_WORK\\V-Server\\route\\docs",
-      "F:\\V_WORK\\V-Server\\service\\dashboard"
+      "F:\\V_WORK\\V-Server\\service\\dashboard",
+      "F:\\V_WORK\\V-Server\\service\\auth"
     ]
   }
 }
