@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(xargs grep:*)",
+      "Bash(grep -r socket f:/v_work/v-Dashboard --include=*.ts --include=*.tsx --include=*.json)",
+      "Bash(grep -r io\\\\\\(f:/v_work/v-Dashboard --include=*.ts --include=*.tsx)",
+      "Bash(node -e \"const pkg = require\\(''./package.json''\\); console.log\\(''redis:'', pkg.dependencies.redis || pkg.devDependencies?.redis || ''not found''\\)\")"
+    ],
+    "additionalDirectories": [
+      "f:\\V_WORK\\V-Server\\route\\dashboard"
+    ]
+  }
+}

@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { authService } from "@/lib/auth"
 import type { User } from "@/lib/Types"
 import { ServerSwitchButton } from "@/components/server-toggle"
+import { GameSessions } from "./components/game-sessions"
 
 export default function DashboardPage() {
   const [user, setUser] = useState<User | null>(null)
@@ -59,7 +60,7 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-background p-6">
-      <div className="max-w-4xl mx-auto space-y-6">
+      <div className="max-w-5xl mx-auto space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
@@ -76,6 +77,9 @@ export default function DashboardPage() {
           {user.profileComplete && <Badge variant="secondary">Profile Complete</Badge>}
           <ServerSwitchButton />
         </div>
+
+        {/* Game Sessions */}
+        <GameSessions />
       </div>
     </div>
   )
