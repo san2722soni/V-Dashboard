@@ -7,19 +7,21 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
+import { toast } from "sonner"
 import {
   Users,
   Gamepad2,
   Trophy,
   Clock,
   RefreshCw,
-  Server,
   Shield,
   Swords,
   Loader2,
   AlertCircle,
   Wifi,
   WifiOff,
+  Copy,
+  Check,
 } from "lucide-react"
 
 // ── Types ──────────────────────────────────────────────────────────
@@ -82,7 +84,15 @@ interface GameSessionsData {
   activeLobbies: ActiveLobby[]
   activeGames: ActiveGame[]
   completedGames: CompletedGame[]
-  inGameLobbies: { lobbyId: string; lobbyName: string; creatorId: string; memberCount: number; gameId: string | null; createdAt: string; status: string }[]
+  inGameLobbies: {
+    lobbyId: string
+    lobbyName: string
+    creatorId: string
+    memberCount: number
+    gameId: string | null
+    createdAt: string
+    status: string
+  }[]
 }
 
 // ── Helpers ────────────────────────────────────────────────────────
@@ -100,10 +110,69 @@ function timeAgo(dateStr: string) {
   return `${days}d ago`
 }
 
-function shortId(id: string) {
-  if (!id) return "—"
-  if (id.length <= 8) return id
-  return id.slice(0, 6) + "…"
+function formatDate(dateStr: string) {
+  const d = new Date(dateStr)
+  return d.toLocaleDateString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  })
+}
+
+// ── Copyable ID ────────────────────────────────────────────────────
+
+function CopyId({ value, label }: { value: string; label?: string }) {
+  const [copied, setCopied] = useState(false)
+
+  if (!value || value === "—") return <span className="text-muted-foreground">—</span>
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(value)
+    setCopied(true)
+    toast.success(`${label || "ID"} copied`)
+    setTimeout(() => setCopied(false), 1500)
+  }
+
+  const display = value.length > 10 ? value.slice(0, 8) + "..." : value
+
+  return (
+    <button
+      onClick={handleCopy}
+      className="inline-flex items-center gap-1 font-mono text-xs px-1.5 py-0.5 rounded bg-muted/60 hover:bg-muted transition-colors cursor-pointer group max-w-[140px]"
+      title={value}
+    >
+      <span className="truncate">{display}</span>
+      {copied ? (
+        <Check className="h-3 w-3 text-emerald-400 shrink-0" />
+      ) : (
+        <Copy className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
+      )}
+    </button>
+  )
+}
+
+// ── Status Badge ───────────────────────────────────────────────────
+
+function StatusBadge({ status }: { status: string }) {
+  const styles: Record<string, string> = {
+    waiting: "bg-blue-500/15 text-blue-400 border-blue-500/30",
+    running: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30",
+    completed: "bg-amber-500/15 text-amber-400 border-amber-500/30",
+    in_game: "bg-violet-500/15 text-violet-400 border-violet-500/30",
+  }
+  const labels: Record<string, string> = {
+    waiting: "Waiting",
+    running: "Running",
+    completed: "Completed",
+    in_game: "In Game",
+  }
+  return (
+    <Badge className={`text-[10px] border ${styles[status] || "bg-muted text-muted-foreground"}`}>
+      {labels[status] || status}
+    </Badge>
+  )
 }
 
 // ── Summary Card ───────────────────────────────────────────────────
@@ -124,14 +193,12 @@ function StatCard({
       <CardContent className="p-4">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+            <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
               {label}
             </p>
-            <p className="text-2xl font-bold mt-1">{value}</p>
+            <p className="text-2xl font-bold mt-1 tabular-nums">{value}</p>
           </div>
-          <div
-            className={`h-10 w-10 rounded-lg flex items-center justify-center ${accent}`}
-          >
+          <div className={`h-10 w-10 rounded-lg flex items-center justify-center ${accent}`}>
             <Icon className="h-5 w-5 text-white" />
           </div>
         </div>
@@ -140,121 +207,174 @@ function StatCard({
   )
 }
 
-// ── Lobby Row ──────────────────────────────────────────────────────
+// ── Table Header ───────────────────────────────────────────────────
 
-function LobbyRow({ lobby }: { lobby: ActiveLobby }) {
+function Th({ children, className = "" }: { children: React.ReactNode; className?: string }) {
   return (
-    <div className="flex items-center justify-between p-3 rounded-lg bg-secondary/50 hover:bg-secondary/80 transition-colors">
-      <div className="flex items-center gap-3 min-w-0">
-        <div className="h-9 w-9 rounded-lg bg-blue-500/15 flex items-center justify-center shrink-0">
-          <Users className="h-4 w-4 text-blue-400" />
-        </div>
-        <div className="min-w-0">
-          <p className="text-sm font-medium truncate">{lobby.lobbyName}</p>
-          <p className="text-xs text-muted-foreground">
-            ID: {lobby.lobbyId} &middot; Leader: {shortId(lobby.leaderId)}
-          </p>
-        </div>
-      </div>
-      <div className="flex items-center gap-2 shrink-0">
-        <Badge variant="secondary" className="text-[10px] tabular-nums">
-          {lobby.memberCount} player{lobby.memberCount !== 1 ? "s" : ""}
-        </Badge>
-        <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30 text-[10px]">
-          Waiting
-        </Badge>
-        <span className="text-[10px] text-muted-foreground w-16 text-right">
-          {lobby.createdAt ? timeAgo(lobby.createdAt) : "—"}
-        </span>
-      </div>
-    </div>
+    <th
+      className={`text-[11px] font-medium text-muted-foreground uppercase tracking-wider px-3 py-2.5 text-left whitespace-nowrap ${className}`}
+    >
+      {children}
+    </th>
   )
 }
 
-// ── Game Row ───────────────────────────────────────────────────────
-
-function GameRow({
-  game,
-  variant,
-}: {
-  game: ActiveGame | CompletedGame
-  variant: "running" | "completed"
-}) {
-  const isRunning = variant === "running"
-  return (
-    <div className="flex items-center justify-between p-3 rounded-lg bg-secondary/50 hover:bg-secondary/80 transition-colors">
-      <div className="flex items-center gap-3 min-w-0">
-        <div
-          className={`h-9 w-9 rounded-lg flex items-center justify-center shrink-0 ${
-            isRunning ? "bg-emerald-500/15" : "bg-amber-500/15"
-          }`}
-        >
-          {isRunning ? (
-            <Gamepad2 className="h-4 w-4 text-emerald-400" />
-          ) : (
-            <Trophy className="h-4 w-4 text-amber-400" />
-          )}
-        </div>
-        <div className="min-w-0">
-          <div className="flex items-center gap-2">
-            <p className="text-sm font-medium truncate">
-              Game {shortId(game.gameId)}
-            </p>
-            {game.serverIP ? (
-              <span className="inline-flex items-center gap-1 text-[10px] text-emerald-400">
-                <Wifi className="h-3 w-3" />
-                {game.serverIP}
-              </span>
-            ) : (
-              <span className="inline-flex items-center gap-1 text-[10px] text-muted-foreground">
-                <WifiOff className="h-3 w-3" />
-                No server
-              </span>
-            )}
-          </div>
-          <p className="text-xs text-muted-foreground">
-            Lobby: {game.lobbyId || "—"} &middot;{" "}
-            <span className="inline-flex items-center gap-0.5">
-              <Shield className="h-3 w-3" /> A:{game.teamA}
-            </span>{" "}
-            vs{" "}
-            <span className="inline-flex items-center gap-0.5">
-              <Swords className="h-3 w-3" /> B:{game.teamB}
-            </span>
-          </p>
-        </div>
-      </div>
-      <div className="flex items-center gap-2 shrink-0">
-        <Badge variant="outline" className="text-[10px] tabular-nums">
-          {game.realPlayerCount} real
-          {game.botCount > 0 ? ` + ${game.botCount} bot` : ""}
-        </Badge>
-        <Badge
-          className={`text-[10px] ${
-            isRunning
-              ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/30"
-              : "bg-amber-500/20 text-amber-400 border-amber-500/30"
-          }`}
-        >
-          {isRunning ? "Running" : "Completed"}
-        </Badge>
-        {"createdAt" in game && game.createdAt && (
-          <span className="text-[10px] text-muted-foreground w-16 text-right">
-            {timeAgo(game.createdAt)}
-          </span>
-        )}
-      </div>
-    </div>
-  )
+function Td({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+  return <td className={`px-3 py-2.5 text-sm whitespace-nowrap ${className}`}>{children}</td>
 }
 
 // ── Empty State ────────────────────────────────────────────────────
 
 function EmptyState({ message }: { message: string }) {
   return (
-    <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
-      <Gamepad2 className="h-10 w-10 mb-3 opacity-30" />
+    <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
+      <Gamepad2 className="h-10 w-10 mb-3 opacity-20" />
       <p className="text-sm">{message}</p>
+    </div>
+  )
+}
+
+// ── Lobbies Table ──────────────────────────────────────────────────
+
+function LobbiesTable({ lobbies }: { lobbies: ActiveLobby[] }) {
+  if (lobbies.length === 0) return <EmptyState message="No active lobbies right now" />
+
+  return (
+    <div className="overflow-auto max-h-[420px] scrollbar-hide rounded-md border border-border">
+      <table className="w-full min-w-[600px]">
+        <thead className="bg-muted/40 sticky top-0 z-10">
+          <tr>
+            <Th>Status</Th>
+            <Th>Lobby ID</Th>
+            <Th>Name</Th>
+            <Th>Leader</Th>
+            <Th>Creator</Th>
+            <Th>Players</Th>
+            <Th>Created</Th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-border">
+          {lobbies.map((l) => (
+            <tr key={l.lobbyId} className="hover:bg-muted/30 transition-colors">
+              <Td><StatusBadge status="waiting" /></Td>
+              <Td><CopyId value={l.lobbyId} label="Lobby ID" /></Td>
+              <Td className="font-medium max-w-[160px] truncate">{l.lobbyName || "—"}</Td>
+              <Td><CopyId value={l.leaderId} label="Leader ID" /></Td>
+              <Td><CopyId value={l.creatorId} label="Creator ID" /></Td>
+              <Td>
+                <div className="flex items-center gap-1.5">
+                  <Users className="h-3.5 w-3.5 text-blue-400" />
+                  <span className="tabular-nums">{l.memberCount}</span>
+                </div>
+              </Td>
+              <Td className="text-muted-foreground text-xs">
+                {l.createdAt ? formatDate(l.createdAt) : "—"}
+              </Td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
+// ── Games Table ────────────────────────────────────────────────────
+
+function GamesTable({
+  games,
+  variant,
+}: {
+  games: (ActiveGame | CompletedGame)[]
+  variant: "running" | "completed"
+}) {
+  if (games.length === 0) {
+    return (
+      <EmptyState
+        message={variant === "running" ? "No games running right now" : "No completed games yet"}
+      />
+    )
+  }
+
+  const isCompleted = variant === "completed"
+
+  return (
+    <div className="overflow-auto max-h-[420px] scrollbar-hide rounded-md border border-border">
+      <table className="w-full min-w-[780px]">
+        <thead className="bg-muted/40 sticky top-0 z-10">
+          <tr>
+            <Th>Status</Th>
+            <Th>Game ID</Th>
+            <Th>Lobby</Th>
+            {isCompleted && <Th>Creator</Th>}
+            <Th>Server</Th>
+            <Th>Teams</Th>
+            <Th>Players</Th>
+            <Th>{isCompleted ? "Finished" : "Started"}</Th>
+            {isCompleted && <Th>Duration</Th>}
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-border">
+          {games.map((g) => {
+            const completed = g as CompletedGame
+            let duration = ""
+            if (isCompleted && completed.createdAt && completed.updatedAt) {
+              const ms =
+                new Date(completed.updatedAt).getTime() - new Date(completed.createdAt).getTime()
+              const totalMins = Math.floor(ms / 60000)
+              if (totalMins < 60) duration = `${totalMins}m`
+              else duration = `${Math.floor(totalMins / 60)}h ${totalMins % 60}m`
+            }
+
+            return (
+              <tr key={g.gameId} className="hover:bg-muted/30 transition-colors">
+                <Td><StatusBadge status={variant} /></Td>
+                <Td><CopyId value={g.gameId} label="Game ID" /></Td>
+                <Td><CopyId value={g.lobbyId} label="Lobby ID" /></Td>
+                {isCompleted && (
+                  <Td><CopyId value={completed.creatorId} label="Creator ID" /></Td>
+                )}
+                <Td>
+                  {g.serverIP ? (
+                    <span className="inline-flex items-center gap-1.5 text-xs">
+                      <Wifi className="h-3.5 w-3.5 text-emerald-400" />
+                      <CopyId value={g.serverIP} label="Server IP" />
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+                      <WifiOff className="h-3.5 w-3.5" /> None
+                    </span>
+                  )}
+                </Td>
+                <Td>
+                  <div className="flex items-center gap-2 text-xs tabular-nums">
+                    <span className="inline-flex items-center gap-0.5 text-blue-400">
+                      <Shield className="h-3 w-3" /> {g.teamA}
+                    </span>
+                    <span className="text-muted-foreground">vs</span>
+                    <span className="inline-flex items-center gap-0.5 text-red-400">
+                      <Swords className="h-3 w-3" /> {g.teamB}
+                    </span>
+                  </div>
+                </Td>
+                <Td>
+                  <div className="flex items-center gap-1 text-xs tabular-nums">
+                    <span>{g.realPlayerCount} real</span>
+                    {g.botCount > 0 && (
+                      <span className="text-muted-foreground">+ {g.botCount} bot</span>
+                    )}
+                  </div>
+                </Td>
+                <Td className="text-muted-foreground text-xs">
+                  {"createdAt" in g && g.createdAt ? formatDate(g.createdAt) : "—"}
+                </Td>
+                {isCompleted && (
+                  <Td className="text-xs tabular-nums text-muted-foreground">{duration || "—"}</Td>
+                )}
+              </tr>
+            )
+          })}
+        </tbody>
+      </table>
     </div>
   )
 }
@@ -293,8 +413,6 @@ export function GameSessions() {
 
   useEffect(() => {
     fetchData()
-
-    // Auto-refresh every 30 seconds
     const interval = setInterval(() => fetchData(true), 30000)
     return () => clearInterval(interval)
   }, [fetchData])
@@ -358,12 +476,13 @@ export function GameSessions() {
   const { summary, activeLobbies, activeGames, completedGames } = data
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2.5">
           <h2 className="text-lg font-semibold">Game Sessions</h2>
-          <Badge variant="outline" className="text-[10px]">
+          <Badge variant="outline" className="text-[10px] gap-1">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
             Live
           </Badge>
         </div>
@@ -374,33 +493,16 @@ export function GameSessions() {
           disabled={refreshing}
           className="gap-1.5"
         >
-          <RefreshCw
-            className={`h-3.5 w-3.5 ${refreshing ? "animate-spin" : ""}`}
-          />
+          <RefreshCw className={`h-3.5 w-3.5 ${refreshing ? "animate-spin" : ""}`} />
           {refreshing ? "Refreshing" : "Refresh"}
         </Button>
       </div>
 
       {/* Summary Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <StatCard
-          icon={Clock}
-          label="Active Lobbies"
-          value={summary.activeLobbies}
-          accent="bg-blue-500"
-        />
-        <StatCard
-          icon={Gamepad2}
-          label="Running Games"
-          value={summary.runningGames}
-          accent="bg-emerald-500"
-        />
-        <StatCard
-          icon={Trophy}
-          label="Completed"
-          value={summary.completedGames}
-          accent="bg-amber-500"
-        />
+        <StatCard icon={Clock} label="Active Lobbies" value={summary.activeLobbies} accent="bg-blue-500" />
+        <StatCard icon={Gamepad2} label="Running Games" value={summary.runningGames} accent="bg-emerald-500" />
+        <StatCard icon={Trophy} label="Completed" value={summary.completedGames} accent="bg-amber-500" />
         <StatCard
           icon={Users}
           label="Active Players"
@@ -412,34 +514,26 @@ export function GameSessions() {
       {/* Tabs */}
       <Tabs defaultValue="lobbies" className="w-full">
         <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="lobbies" className="text-xs">
+          <TabsTrigger value="lobbies" className="text-xs gap-1.5">
             Lobbies
             {summary.activeLobbies > 0 && (
-              <Badge
-                variant="secondary"
-                className="ml-1.5 h-4 min-w-4 px-1 text-[10px]"
-              >
+              <Badge variant="secondary" className="h-4 min-w-4 px-1 text-[10px]">
                 {summary.activeLobbies}
               </Badge>
             )}
           </TabsTrigger>
-          <TabsTrigger value="running" className="text-xs">
+          <TabsTrigger value="running" className="text-xs gap-1.5">
             Running
             {summary.runningGames > 0 && (
-              <Badge
-                className="ml-1.5 h-4 min-w-4 px-1 text-[10px] bg-emerald-500/20 text-emerald-400 border-emerald-500/30"
-              >
+              <Badge className="h-4 min-w-4 px-1 text-[10px] bg-emerald-500/20 text-emerald-400 border-emerald-500/30">
                 {summary.runningGames}
               </Badge>
             )}
           </TabsTrigger>
-          <TabsTrigger value="completed" className="text-xs">
+          <TabsTrigger value="completed" className="text-xs gap-1.5">
             Completed
             {summary.completedGames > 0 && (
-              <Badge
-                variant="secondary"
-                className="ml-1.5 h-4 min-w-4 px-1 text-[10px]"
-              >
+              <Badge variant="secondary" className="h-4 min-w-4 px-1 text-[10px]">
                 {summary.completedGames}
               </Badge>
             )}
@@ -453,19 +547,13 @@ export function GameSessions() {
               <CardTitle className="text-sm font-medium flex items-center gap-2">
                 <Users className="h-4 w-4 text-blue-400" />
                 Active Lobbies
-                <span className="text-muted-foreground font-normal">
-                  &mdash; players waiting for a game to start
+                <span className="text-muted-foreground font-normal text-xs">
+                  — waiting for game start
                 </span>
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2">
-              {activeLobbies.length === 0 ? (
-                <EmptyState message="No active lobbies right now" />
-              ) : (
-                activeLobbies.map((lobby) => (
-                  <LobbyRow key={lobby.lobbyId} lobby={lobby} />
-                ))
-              )}
+            <CardContent className="pt-0">
+              <LobbiesTable lobbies={activeLobbies} />
             </CardContent>
           </Card>
         </TabsContent>
@@ -477,23 +565,13 @@ export function GameSessions() {
               <CardTitle className="text-sm font-medium flex items-center gap-2">
                 <Gamepad2 className="h-4 w-4 text-emerald-400" />
                 Running Games
-                <span className="text-muted-foreground font-normal">
-                  &mdash; games currently in progress
+                <span className="text-muted-foreground font-normal text-xs">
+                  — currently in progress
                 </span>
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2">
-              {activeGames.length === 0 ? (
-                <EmptyState message="No games running right now" />
-              ) : (
-                activeGames.map((game) => (
-                  <GameRow
-                    key={game.gameId}
-                    game={game}
-                    variant="running"
-                  />
-                ))
-              )}
+            <CardContent className="pt-0">
+              <GamesTable games={activeGames} variant="running" />
             </CardContent>
           </Card>
         </TabsContent>
@@ -505,23 +583,13 @@ export function GameSessions() {
               <CardTitle className="text-sm font-medium flex items-center gap-2">
                 <Trophy className="h-4 w-4 text-amber-400" />
                 Completed Games
-                <span className="text-muted-foreground font-normal">
-                  &mdash; recent finished games
+                <span className="text-muted-foreground font-normal text-xs">
+                  — recent finished games
                 </span>
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-2">
-              {completedGames.length === 0 ? (
-                <EmptyState message="No completed games yet" />
-              ) : (
-                completedGames.map((game) => (
-                  <GameRow
-                    key={game.gameId}
-                    game={game}
-                    variant="completed"
-                  />
-                ))
-              )}
+            <CardContent className="pt-0">
+              <GamesTable games={completedGames} variant="completed" />
             </CardContent>
           </Card>
         </TabsContent>
