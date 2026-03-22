@@ -3,14 +3,23 @@
 import { useEffect, useState } from "react"
 import { CharacterClient } from "./components/client"
 import { getApiBaseUrl } from "@/lib/api-config"
+import { authService } from "@/lib/auth"
 
 const CharactersPage = () => {
   const [characters, setCharacters] = useState<any[]>([])
+  const [error, setError] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await fetch(`${getApiBaseUrl()}/entity/character`)
+        setIsLoading(true)
+        const res = await authService.authenticatedFetch(`${getApiBaseUrl()}/entity/character`)
+
+        if (!res.ok) {
+          throw new Error(`Failed: ${res.status}`)
+        }
+
         const data = await res.json()
 
         setCharacters(
@@ -25,8 +34,13 @@ const CharactersPage = () => {
             isActive: item.isActive,
           }))
         )
+        setError(null)
       } catch (error) {
-        console.error("Failed to fetch characters:", error)
+        const message = error instanceof Error ? error.message : "Failed to fetch characters"
+        console.error(message, error)
+        setError(message)
+      } finally {
+        setIsLoading(false)
       }
     }
     fetchData()
@@ -35,7 +49,9 @@ const CharactersPage = () => {
   return (
     <div className="flex-col">
       <div className="flex-1 space-y-4 p-8 pt-6">
-        <CharacterClient data={characters} />
+        {isLoading && <p>Loading characters...</p>}
+        {error && <p className="text-red-500">Error: {error}</p>}
+        {!isLoading && !error && <CharacterClient data={characters} />}
       </div>
     </div>
   )

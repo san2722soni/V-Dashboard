@@ -3,14 +3,23 @@
 import { useEffect, useState } from "react"
 import { BuildingClient } from "./components/client"
 import { getApiBaseUrl } from "@/lib/api-config"
+import { authService } from "@/lib/auth"
 
 const BuildingsPage = () => {
   const [buildings, setBuildings] = useState<any[]>([])
+  const [error, setError] = useState<string | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await fetch(`${getApiBaseUrl()}/entity/building`)
+        setIsLoading(true)
+        const res = await authService.authenticatedFetch(`${getApiBaseUrl()}/entity/building`)
+
+        if (!res.ok) {
+          throw new Error(`Failed: ${res.status}`)
+        }
+
         const data = await res.json()
 
         setBuildings(
@@ -24,8 +33,13 @@ const BuildingsPage = () => {
             isActive: item.isActive,
           }))
         )
+        setError(null)
       } catch (error) {
-        console.error("Failed to fetch buildings:", error)
+        const message = error instanceof Error ? error.message : "Failed to fetch buildings"
+        console.error(message, error)
+        setError(message)
+      } finally {
+        setIsLoading(false)
       }
     }
     fetchData()
@@ -34,7 +48,9 @@ const BuildingsPage = () => {
   return (
     <div className="flex-col">
       <div className="flex-1 space-y-4 p-8 pt-6">
-        <BuildingClient data={buildings} />
+        {isLoading && <p>Loading buildings...</p>}
+        {error && <p className="text-red-500">Error: {error}</p>}
+        {!isLoading && !error && <BuildingClient data={buildings} />}
       </div>
     </div>
   )
