@@ -413,8 +413,6 @@ export function GameSessions() {
 
   useEffect(() => {
     fetchData()
-    const interval = setInterval(() => fetchData(true), 30000)
-    return () => clearInterval(interval)
   }, [fetchData])
 
   // Loading skeleton
