@@ -1,37 +1,51 @@
-import { notFound } from "next/navigation";
+"use client";
+
+import { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, Edit } from "lucide-react";
 import Link from "next/link";
 import { getApiBaseUrl } from "@/lib/api-config";
+import { authService } from "@/lib/auth";
 
 import { Button } from "@/components/ui/button";
 import Heading from "@/components/ui/heading";
 import { Separator } from "@/components/ui/separator";
 import { ConfigDetails } from "../../components/config-details";
 
-interface ConfigDetailsPageProps {
-  params: {
-    configId: string;
-  };
-}
+const ConfigDetailsPage = () => {
+  const params = useParams<{ configId: string }>();
+  const router = useRouter();
+  const [config, setConfig] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-const ConfigDetailsPage = async ({ params }: ConfigDetailsPageProps) => {
-  let config = null;
+  useEffect(() => {
+    if (!authService.isAuthenticated()) {
+      router.push("/sign-in");
+      return;
+    }
 
-  try {
-    const res = await fetch(
-      `${getApiBaseUrl()}/entity/global-config/?id=${params.configId}`
-    );
-    if (!res.ok) throw new Error("Not found");
-    const json = await res.json();
-    config = json?.data ?? json;
-  } catch (error) {
-    console.error("Failed to fetch config entry:", error);
-    notFound();
-  }
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+        const res = await authService.authenticatedFetch(
+          `${getApiBaseUrl()}/entity/global-config/?id=${params.configId}`
+        );
+        if (!res.ok) throw new Error("Not found");
+        const json = await res.json();
+        setConfig(json?.data ?? json);
+      } catch (err) {
+        const message = err instanceof Error ? err.message : "Failed to fetch config";
+        setError(message);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchData();
+  }, [params.configId, router]);
 
-  if (!config) {
-    notFound();
-  }
+  if (isLoading) return <div className="p-8">Loading config...</div>;
+  if (error || !config) return <div className="p-8 text-red-500">Error: {error || "Config not found"}</div>;
 
   return (
     <div className="flex-col">

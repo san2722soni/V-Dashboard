@@ -1,37 +1,51 @@
-import { notFound } from "next/navigation";
+"use client";
+
+import { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, Edit } from "lucide-react";
 import Link from "next/link";
 import { getApiBaseUrl } from "@/lib/api-config";
+import { authService } from "@/lib/auth";
 
 import { Button } from "@/components/ui/button";
 import Heading from "@/components/ui/heading";
 import { Separator } from "@/components/ui/separator";
 import { BuildingDetails } from "../../components/building-details";
 
-interface BuildingDetailsPageProps {
-  params: {
-    buildingId: string;
-  };
-}
+const BuildingDetailsPage = () => {
+  const params = useParams<{ buildingId: string }>();
+  const router = useRouter();
+  const [building, setBuilding] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-const BuildingDetailsPage = async ({ params }: BuildingDetailsPageProps) => {
-  let building = null;
+  useEffect(() => {
+    if (!authService.isAuthenticated()) {
+      router.push("/sign-in");
+      return;
+    }
 
-  try {
-    const res = await fetch(
-      `${getApiBaseUrl()}/entity/building/?id=${params.buildingId}`,
-      { cache: "no-store" }
-    );
-    if (!res.ok) throw new Error("Not found");
-    const json = await res.json();
-    building = json?.data ?? json;
-  } catch (error) {
-    notFound();
-  }
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+        const res = await authService.authenticatedFetch(
+          `${getApiBaseUrl()}/entity/building/?id=${params.buildingId}`
+        );
+        if (!res.ok) throw new Error("Not found");
+        const json = await res.json();
+        setBuilding(json?.data ?? json);
+      } catch (err) {
+        const message = err instanceof Error ? err.message : "Failed to fetch building";
+        setError(message);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchData();
+  }, [params.buildingId, router]);
 
-  if (!building) {
-    notFound();
-  }
+  if (isLoading) return <div className="p-8">Loading building...</div>;
+  if (error || !building) return <div className="p-8 text-red-500">Error: {error || "Building not found"}</div>;
 
   return (
     <div className="flex-col">

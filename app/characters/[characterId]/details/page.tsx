@@ -1,37 +1,51 @@
-import { notFound } from "next/navigation";
+"use client";
+
+import { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, Edit } from "lucide-react";
 import Link from "next/link";
 import { getApiBaseUrl } from "@/lib/api-config";
+import { authService } from "@/lib/auth";
 
 import { Button } from "@/components/ui/button";
 import Heading from "@/components/ui/heading";
 import { Separator } from "@/components/ui/separator";
 import { CharacterDetails } from "../../components/character-details";
 
-interface CharacterDetailsPageProps {
-  params: {
-    characterId: string;
-  };
-}
+const CharacterDetailsPage = () => {
+  const params = useParams<{ characterId: string }>();
+  const router = useRouter();
+  const [character, setCharacter] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-const CharacterDetailsPage = async ({ params }: CharacterDetailsPageProps) => {
-  let character = null;
+  useEffect(() => {
+    if (!authService.isAuthenticated()) {
+      router.push("/sign-in");
+      return;
+    }
 
-  try {
-    const res = await fetch(
-      `${getApiBaseUrl()}/entity/character/?id=${params.characterId}`,
-      { cache: "no-store" }
-    );
-    if (!res.ok) throw new Error("Not found");
-    const json = await res.json();
-    character = json?.data ?? json;
-  } catch (error) {
-    notFound();
-  }
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+        const res = await authService.authenticatedFetch(
+          `${getApiBaseUrl()}/entity/character/?id=${params.characterId}`
+        );
+        if (!res.ok) throw new Error("Not found");
+        const json = await res.json();
+        setCharacter(json?.data ?? json);
+      } catch (err) {
+        const message = err instanceof Error ? err.message : "Failed to fetch character";
+        setError(message);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchData();
+  }, [params.characterId, router]);
 
-  if (!character) {
-    notFound();
-  }
+  if (isLoading) return <div className="p-8">Loading character...</div>;
+  if (error || !character) return <div className="p-8 text-red-500">Error: {error || "Character not found"}</div>;
 
   return (
     <div className="flex-col">
