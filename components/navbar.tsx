@@ -182,6 +182,11 @@ const Navbar = () => {
       label: "Excalidraw",
       active: pathname === "/excalidraw" || pathname.startsWith("/excalidraw/"),
     },
+    {
+      href: `/anarchy`,
+      label: "Anarchy",
+      active: pathname === "/anarchy",
+    },
   ];
 
   return (
