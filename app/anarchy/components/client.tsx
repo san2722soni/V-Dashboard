@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import {
-  Bot, Trash2, LogOut, Plus, RefreshCw, ExternalLink, Activity,
+  Bot, Trash2, Plus, RefreshCw, ExternalLink, Activity, Loader2,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -18,7 +18,6 @@ import {
   anarchyLogin,
   clearAnarchyAuth,
   getAnarchyToken,
-  getAnarchyEmail,
   spawnBots,
   listBotRuns,
   terminateBotRun,
@@ -37,22 +36,39 @@ const POLL_MS = 5000;
 // gates real privilege.
 const DEV_PASSWORD = "1247";
 
+// Account used for the silent auto-login. Anarchy api gates dev
+// endpoints by email allowlist — `aswin@gmail.com` is on it.
+const DEV_EMAIL = "aswin@gmail.com";
+
 export const AnarchyClient = () => {
   const [token, setToken] = useState<string | null>(null);
-  const [email, setEmail] = useState<string | null>(null);
+  const [authError, setAuthError] = useState<string | null>(null);
   const [runs, setRuns] = useState<BotRun[]>([]);
   const [busy, setBusy] = useState<string | null>(null);
   const [count, setCount] = useState<number>(1);
 
   const [detailRunId, setDetailRunId] = useState<string | null>(null);
 
-  // Hydrate auth state on mount.
+  // Auto-login on mount if no token. Anarchy is an internal dev tool —
+  // the dashboard user has already authed into v-dashboard, so we just
+  // mint an anarchy token transparently with the shared dev creds.
   useEffect(() => {
-    setToken(getAnarchyToken());
-    setEmail(getAnarchyEmail());
+    let alive = true;
+    (async () => {
+      const existing = getAnarchyToken();
+      if (existing) { setToken(existing); return; }
+      try {
+        await anarchyLogin(DEV_EMAIL, DEV_PASSWORD);
+        if (!alive) return;
+        setToken(getAnarchyToken());
+      } catch (e) {
+        if (alive) setAuthError((e as Error).message);
+      }
+    })();
+    return () => { alive = false; };
   }, []);
 
-  // Poll active runs every 5s while authed. 401 → token expired → log out.
+  // Poll active runs every 5s while authed. 401 → token expired → re-auth.
   useEffect(() => {
     if (!token) return;
     let alive = true;
@@ -63,7 +79,7 @@ export const AnarchyClient = () => {
       } catch (e) {
         if ((e as Error).message?.includes("401")) {
           clearAnarchyAuth();
-          if (alive) { setToken(null); setEmail(null); }
+          if (alive) setToken(null);   // triggers the auto-login effect again
         }
       }
     };
@@ -71,28 +87,6 @@ export const AnarchyClient = () => {
     const id = setInterval(fetchRuns, POLL_MS);
     return () => { alive = false; clearInterval(id); };
   }, [token]);
-
-  const quickLogin = async (asEmail: string) => {
-    setBusy(`login:${asEmail}`);
-    try {
-      await anarchyLogin(asEmail, DEV_PASSWORD);
-      setToken(getAnarchyToken());
-      setEmail(getAnarchyEmail());
-      toast.success(`logged in as ${asEmail}`);
-    } catch (e) {
-      toast.error(`login failed: ${(e as Error).message}`);
-    } finally {
-      setBusy(null);
-    }
-  };
-
-  const handleLogout = () => {
-    clearAnarchyAuth();
-    setToken(null);
-    setEmail(null);
-    setRuns([]);
-    toast.success("logged out of Anarchy");
-  };
 
   const handleSpawn = async () => {
     if (!Number.isFinite(count) || count < 1 || count > 100) {
@@ -146,33 +140,26 @@ export const AnarchyClient = () => {
     }
   };
 
-  // ---------- not logged in: quick-login card ----------
+  // ---------- auth in flight (auto-login from useEffect above) ----------
   if (!token) {
     return (
       <Card className="max-w-md mx-auto mt-12">
         <CardHeader>
           <CardTitle>Anarchy Bot Fleet</CardTitle>
           <CardDescription>
-            Anarchy uses its own JWT, separate from this dashboard&apos;s auth.
-            Sign in with one of the dev-allowlisted accounts to continue.
+            {authError
+              ? `Could not auth to anarchy api: ${authError}`
+              : "Authenticating with anarchy api…"}
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-3">
-          <Button
-            className="w-full"
-            onClick={() => quickLogin("aswin@gmail.com")}
-            disabled={busy?.startsWith("login")}
-          >
-            {busy === "login:aswin@gmail.com" ? "Signing in…" : "Sign in as Aswin"}
-          </Button>
-          <Button
-            variant="outline"
-            className="w-full"
-            onClick={() => quickLogin("oliv@gmail.com")}
-            disabled={busy?.startsWith("login")}
-          >
-            {busy === "login:oliv@gmail.com" ? "Signing in…" : "Sign in as Oliv"}
-          </Button>
+        <CardContent className="flex justify-center pb-6">
+          {authError ? (
+            <Button onClick={() => { setAuthError(null); setToken(null); }}>
+              Retry
+            </Button>
+          ) : (
+            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+          )}
         </CardContent>
       </Card>
     );
@@ -189,7 +176,7 @@ export const AnarchyClient = () => {
       <div className="flex items-center justify-between">
         <Heading
           title={`Anarchy Bot Fleet`}
-          description={`Logged in as ${email} • polling every 5s`}
+          description={`Polling every 5s — ${runs.length} active run${runs.length === 1 ? "" : "s"}`}
         />
         <div className="flex gap-2">
           <Button
@@ -197,9 +184,6 @@ export const AnarchyClient = () => {
             onClick={() => listBotRuns().then(setRuns).catch(() => {})}
           >
             <RefreshCw className="mr-2 h-4 w-4" /> Refresh
-          </Button>
-          <Button variant="outline" onClick={handleLogout}>
-            <LogOut className="mr-2 h-4 w-4" /> Logout
           </Button>
         </div>
       </div>
