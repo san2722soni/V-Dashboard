@@ -44,17 +44,17 @@ export const anarchyLogin = async (email: string, password: string) => {
 };
 
 // ---------- authed fetch helper ----------
+// Only sets Content-Type when there's actually a body — fastify
+// otherwise 400s on POST/DELETE with `application/json` + empty body.
 const authedFetch = async (path: string, init: RequestInit = {}) => {
   const token = getAnarchyToken();
   if (!token) throw new Error("not logged in to Anarchy");
-  const r = await fetch(`${ANARCHY_BASE}${path}`, {
-    ...init,
-    headers: {
-      ...(init.headers || {}),
-      "Authorization": `Bearer ${token}`,
-      "Content-Type":  "application/json",
-    },
-  });
+  const headers: Record<string, string> = {
+    ...(init.headers as Record<string, string> || {}),
+    "Authorization": `Bearer ${token}`,
+  };
+  if (init.body) headers["Content-Type"] = "application/json";
+  const r = await fetch(`${ANARCHY_BASE}${path}`, { ...init, headers });
   const text = await r.text();
   let json;
   try { json = text ? JSON.parse(text) : {}; } catch { json = { raw: text }; }
