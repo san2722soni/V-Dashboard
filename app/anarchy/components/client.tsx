@@ -260,13 +260,13 @@ export const AnarchyClient = () => {
           <div>
             <p className="text-sm font-medium">Bot logs</p>
             <p className="text-xs text-muted-foreground">
-              Filebeat ships every bot&apos;s <code>/var/log/loadtest/bot-*.log</code> to ES under <code>botLogs-*</code>.
+              Filebeat ships every bot&apos;s <code>/var/log/loadtest/bot-*.log</code> to ES under <code>botlogs-*</code>.
               Filter in Kibana with <code>project: anarchy-loadtest</code>.
             </p>
           </div>
           <Button variant="outline" asChild>
             <a
-              href="https://kibana.olivs.in/app/discover#/?_a=(index:'botLogs-*')"
+              href="https://kibana.olivs.in/app/discover#/?_a=(index:'botlogs-*')"
               target="_blank"
               rel="noreferrer"
             >
