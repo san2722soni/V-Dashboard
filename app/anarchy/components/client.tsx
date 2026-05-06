@@ -49,14 +49,13 @@ export const AnarchyClient = () => {
 
   const [detailRunId, setDetailRunId] = useState<string | null>(null);
 
-  // Auto-login on mount if no token. Anarchy is an internal dev tool —
-  // the dashboard user has already authed into v-dashboard, so we just
-  // mint an anarchy token transparently with the shared dev creds.
+  // Auto-login on mount. Always fresh — never reuse a cached token,
+  // because a stale token from a non-allowlisted account doesn't 401
+  // it 403's, which the polling effect below doesn't catch.
   useEffect(() => {
     let alive = true;
     (async () => {
-      const existing = getAnarchyToken();
-      if (existing) { setToken(existing); return; }
+      clearAnarchyAuth();
       try {
         await anarchyLogin(DEV_EMAIL, DEV_PASSWORD);
         if (!alive) return;
@@ -77,7 +76,8 @@ export const AnarchyClient = () => {
         const r = await listBotRuns();
         if (alive) setRuns(r);
       } catch (e) {
-        if ((e as Error).message?.includes("401")) {
+        const msg = (e as Error).message || "";
+        if (msg.includes("401") || msg.includes("403")) {
           clearAnarchyAuth();
           if (alive) setToken(null);   // triggers the auto-login effect again
         }
