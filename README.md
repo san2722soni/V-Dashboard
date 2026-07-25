@@ -1,36 +1,37 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# V-Dashboard
 
-## Getting Started
+Developer operations dashboard for builds, sessions, releases, and backend control workflows.
 
-First, run the development server:
+## Why This Project Matters
 
-```bash
+This project is part of my portfolio because it shows practical product engineering: real screens, real workflows, backend/API thinking where relevant, and enough structure to explain design and debugging decisions clearly.
+
+## Highlights
+
+- Build and session management UI
+- Developer/admin control-plane style screens
+- Pairs with V-Server backend
+- Good portfolio proof for internal tooling
+
+## Tech Stack
+
+Next.js, TypeScript, Tailwind, Prisma, API integrations
+
+## Demo
+
+- Demo video: https://youtu.be/Sn7XAAzTvuM
+
+## Run Locally
+
+`ash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+`
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Some full-stack projects may also need MongoDB, Redis, or a paired backend/frontend service. Check the project-specific .env.example, backend folder, or existing docs before running production-like flows.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Portfolio Notes
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+- Built/maintained by Aswin Anand.
+- Showcase-ready README added for recruiters and project reviewers.
+- Private repositories are intentionally kept private when the project includes client-like code, internal workflows, or local environment assumptions.
